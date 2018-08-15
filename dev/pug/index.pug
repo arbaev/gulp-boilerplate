@@ -1,0 +1,16 @@
+-var page_title = "Заголовок"
+-var page_desc = "Описание"
+
+//- подключение миксинов
+include mixins/_mixins.pug
+
+doctype html
+html(lang="ru")
+  include partials/head.pug
+  body.page
+    +browserupgrade
+    include partials/header.pug
+    include partials/content.pug
+    include partials/footer.pug
+    script(src="js/main.js")
+    include partials/counters.html

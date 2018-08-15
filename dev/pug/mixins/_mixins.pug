@@ -1,0 +1,36 @@
+//- миксин кнопок соцсетей
+mixin social(attributes)
+  // кнопки соцсетей start
+  ul.social&attributes(attributes)
+    li.social__item: a.social__link.social__link_vk(href="#VK" title="VK") VK
+    li.social__item: a.social__link.social__link_fb(href="#FB" title="FB") FB
+    li.social__item: a.social__link.social__link_tw(href="#TW" title="TW") TW
+  // кнопки соцсетей end
+
+//- миксин меню навигации (класс, [пункты меню], номер активного элемента)
+mixin nav(className, items, activeIndex)
+  // меню навигации start
+  div(class=className)
+    .container
+      ul(class=className + '__list')
+        each item, ndx in items
+          li(class=className + '__item')
+            a(class=className + '__link' + ((ndx == activeIndex) ? ' current' : ''), href="#")= item
+  // меню навигации end
+
+//- сообщение для старых браузеров
+mixin browserupgrade
+  <!--[if lt IE 8]>
+  <p style="text-align: center; padding: 10px 0px; background-color: #ffa; width: 100%;">Вы используете <strong>чудовищно устаревший</strong> браузер. Пожалуйста, <a href="http://browsehappy.com/">выберите себе любой современный браузер</a> и возвращайтесь к нам.</p>
+  <![endif]-->
+
+//- просто список
+mixin spisok(className, items)
+  div(class=className)
+    ul(class=className + '__list')
+      each item in items
+        li(class=className + '__item')= item
+
+//- Yandex Metrika counter  - НЕРАБОЧИЙ МИКСИН
+mixin yandexmetrika(metrikaid)
+  metrikaid

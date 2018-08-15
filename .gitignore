@@ -1,0 +1,13 @@
+node_modules
+/public
+/src
+/*.sublime-*
+/*.code-workspace
+/.idea
+/.vscode
+/.vagrant
+/vendor
+npm-debug.log
+yarn-error.log
+.env
+.DS_Store
