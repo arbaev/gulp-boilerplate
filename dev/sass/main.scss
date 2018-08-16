@@ -1,8 +1,5 @@
-@import-normalize;
-
-:root {
-  --mainColor: red;
-}
+$text: #555;
+$bg: white;
 
 /* breakpoints */
 @custom-media --phone screen and (max-width: 544px);
@@ -38,4 +35,3 @@ body {
   background-image: none;
   font-size: 16px;
 }
-

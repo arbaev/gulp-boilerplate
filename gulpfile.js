@@ -1,26 +1,25 @@
 'use strict'
 
 const gulp        = require("gulp"),
-      del         = require("del"),                // удалятор
-      postcss     = require("gulp-postcss"),
       include     = require("gulp-include"),       // include & require любых файлов
-      precss      = require("precss"),
-      postcssEnv  = require("postcss-preset-env"), // расширение синтаксиса css (ex-nextcss)
-      cssnano     = require("gulp-cssnano"), 
       browserSync = require("browser-sync").create(),
       sourcemaps  = require("gulp-sourcemaps"),
-      rename      = require("gulp-rename"),
-      prettify    = require("gulp-jsbeautifier"),
-      normalize   = require("postcss-normalize"),
-      htmlmin     = require("gulp-htmlmin"),
-      uglify      = require("gulp-uglify"),
+      sass        = require("gulp-sass"),
+      // uglify      = require("gulp-uglify"),
+      // cssnano     = require("gulp-cssnano"), 
+      // rename      = require("gulp-rename"),
+      // prettify    = require("gulp-jsbeautifier"),
+      // htmlmin     = require("gulp-htmlmin"),
+      // del         = require("del"),
       pump        = require("pump"),
       babel       = require('gulp-babel'),
       pug         = require("gulp-pug");
 
 const devpath = 'dev/',       // файлы разработки
       srcpath = 'src/',       // скомпилированные файлы
-      buildpath = 'public/';  // минифицированные файлы
+      buildpath = 'public/',  // минифицированные файлы
+      viewspath = devpath + 'pug/',
+      stylespath = devpath + 'sass/';
 
 const reload = browserSync.reload;
 
@@ -31,34 +30,22 @@ const reload = browserSync.reload;
 // Компилируем pug в html
 // в задачу закидываются пуги в корне /pugs, остальные темплейты должны инклюдится в них
 gulp.task('views', function buildHTML() {
-  return gulp.src(devpath + 'pug/*.pug')
+  return gulp.src(viewspath + '*.pug')
     .pipe(pug({
         pretty: true
       })).on('error', log)
-    .pipe(prettify({
-        indent_char: ' ',
-        indent_size: 2
-      }))
     .pipe(gulp.dest(srcpath))
     .pipe(browserSync.stream());
 });
 
 
-// Компилируем PostCSS + плагины в CSS & auto-inject into browsers
-// обрабатывается только main.pcss, все файлы подстилей должны инклюдится в нём: //= include file.pcss
+// Компилируем SCSS в CSS
+// обрабатывается только main.scss, все файлы подстилей должны инклюдится в нём: //= include file.scss
 gulp.task('styles', function () {
-
-  const processors = [ precss,
-                       normalize,
-                       postcssEnv ];
-
-  return gulp.src(devpath + 'pcss/main.pcss')
+  return gulp.src(stylespath + 'main.scss')
     .pipe(include()).on('error', log)
-    .pipe(rename(function (path) {
-      path.extname = ".css";
-    }))
     .pipe(sourcemaps.init())
-    .pipe(postcss(processors).on('error', log))
+    .pipe(sass().on('error', log))
     .pipe(sourcemaps.write())
     .pipe(gulp.dest(srcpath + 'css'))
     .pipe(browserSync.stream());
@@ -82,8 +69,8 @@ gulp.task('serve', ['views', 'styles', 'scripts'], function() {
         server: srcpath
     });
 
-    gulp.watch(devpath + "pcss/**/*.*", ['styles']);
-    gulp.watch(devpath + "pug/**/*.pug", ['views']);
+    gulp.watch(stylespath + "**/*.*", ['styles']);
+    gulp.watch(viewspath + "**/*.pug", ['views']);
     gulp.watch(devpath + "js/**/*.js", ['scripts']); //.on('change', reload);
 });
 
