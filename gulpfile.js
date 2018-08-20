@@ -8,7 +8,7 @@ const gulp         = require("gulp"),
       autoprefixer = require("gulp-autoprefixer"),
       stylelint    = require('gulp-stylelint'),
       // uglify      = require("gulp-uglify"),
-      // cssnano     = require("gulp-cssnano"), 
+      // cssnano     = require("gulp-cssnano"),
       // rename      = require("gulp-rename"),
       // prettify    = require("gulp-jsbeautifier"),
       // htmlmin     = require("gulp-htmlmin"),
@@ -21,7 +21,7 @@ const devpath = 'dev/',       // файлы разработки
       srcpath = 'src/',       // скомпилированные файлы
       buildpath = 'public/',  // минифицированные файлы
       viewspath = devpath + 'pug/',
-      stylespath = devpath + 'sass/';
+      stylespath = devpath + 'styles/';
 
 const reload = browserSync.reload;
 
@@ -57,8 +57,9 @@ gulp.task('styles', ['lintstyles'], function () {
     .pipe(browserSync.stream());
 });
 
+// Проверка SCSS файлов линтером, попка vendors исключается, так как код чужой
 gulp.task('lintstyles', () => {
-  return gulp.src(stylespath + '**/*.scss')
+  return gulp.src( ['!' + stylespath + 'vendors/*.scss', stylespath + '**/*.scss'] )
     .pipe(stylelint({
       reporters: [
         {formatter: 'verbose', console: true}
