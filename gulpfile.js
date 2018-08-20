@@ -1,19 +1,21 @@
 'use strict'
 
-const gulp        = require("gulp"),
-      include     = require("gulp-include"),       // include & require любых файлов
-      browserSync = require("browser-sync").create(),
-      sourcemaps  = require("gulp-sourcemaps"),
-      sass        = require("gulp-sass"),
+const gulp         = require("gulp"),
+      include      = require("gulp-include"),     // include & require любых файлов
+      browserSync  = require("browser-sync").create(),
+      sourcemaps   = require("gulp-sourcemaps"),
+      sass         = require("gulp-sass"),
+      autoprefixer = require("gulp-autoprefixer"),
+      stylelint    = require('gulp-stylelint'),
       // uglify      = require("gulp-uglify"),
       // cssnano     = require("gulp-cssnano"), 
       // rename      = require("gulp-rename"),
       // prettify    = require("gulp-jsbeautifier"),
       // htmlmin     = require("gulp-htmlmin"),
       // del         = require("del"),
-      pump        = require("pump"),
-      babel       = require('gulp-babel'),
-      pug         = require("gulp-pug");
+      pump         = require("pump"),
+      babel        = require('gulp-babel'),
+      pug          = require("gulp-pug");
 
 const devpath = 'dev/',       // файлы разработки
       srcpath = 'src/',       // скомпилированные файлы
@@ -38,18 +40,33 @@ gulp.task('views', function buildHTML() {
     .pipe(browserSync.stream());
 });
 
-
-// Компилируем SCSS в CSS
+// Компилируем SCSS в CSS, перед этим прогоняем scss через линтер
 // обрабатывается только main.scss, все файлы подстилей должны инклюдится в нём: //= include file.scss
-gulp.task('styles', function () {
+gulp.task('styles', ['lintstyles'], function () {
   return gulp.src(stylespath + 'main.scss')
     .pipe(include()).on('error', log)
     .pipe(sourcemaps.init())
     .pipe(sass().on('error', log))
+    .pipe(autoprefixer({
+      // список поддерживаемых браузеров: https://github.com/browserslist/browserslist#queries
+      browsers: ['cover 99.5%'],
+      cascade: true
+    }))
     .pipe(sourcemaps.write())
     .pipe(gulp.dest(srcpath + 'css'))
     .pipe(browserSync.stream());
 });
+
+gulp.task('lintstyles', () => {
+  return gulp.src(stylespath + '**/*.scss')
+    .pipe(stylelint({
+      reporters: [
+        {formatter: 'verbose', console: true}
+      ],
+      failAfterError: false
+    }))
+});
+
 
 // Собрать скрипты в один файл и отбаблить
 gulp.task('scripts', function() {
