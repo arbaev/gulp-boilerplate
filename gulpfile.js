@@ -1,26 +1,30 @@
 'use strict'
 
-const gulp         = require("gulp"),
-      include      = require("gulp-include"),     // include & require любых файлов
-      browserSync  = require("browser-sync").create(),
-      sourcemaps   = require("gulp-sourcemaps"),
-      sass         = require("gulp-sass"),
-      autoprefixer = require("gulp-autoprefixer"),
+const gulp         = require('gulp'),
+      include      = require('gulp-include'),     // include & require любых файлов
+      browserSync  = require('browser-sync').create(),
+      sourcemaps   = require('gulp-sourcemaps'),
+      sass         = require('gulp-sass'),
+      autoprefixer = require('gulp-autoprefixer'),
       stylelint    = require('gulp-stylelint'),
-      // uglify      = require("gulp-uglify"),
-      // cssnano     = require("gulp-cssnano"),
-      // rename      = require("gulp-rename"),
-      // prettify    = require("gulp-jsbeautifier"),
-      // htmlmin     = require("gulp-htmlmin"),
-      // del         = require("del"),
-      pump         = require("pump"),
+      newer        = require('gulp-newer'),
+      imagemin     = require('gulp-imagemin'),
+      pngquant     = require('imagemin-pngquant'),
+      // uglify      = require('gulp-uglify'),
+      // cssnano     = require('gulp-cssnano'),
+      // rename      = require('gulp-rename'),
+      // prettify    = require('gulp-jsbeautifier'),
+      // htmlmin     = require('gulp-htmlmin'),
+      // del         = require('del'),
+      pump         = require('pump'),
       babel        = require('gulp-babel'),
-      pug          = require("gulp-pug");
+      pug          = require('gulp-pug');
 
 const devpath = 'dev/',       // файлы разработки
       srcpath = 'src/',       // скомпилированные файлы
       buildpath = 'public/',  // минифицированные файлы
       viewspath = devpath + 'pug/',
+      imagespath = 'images/',
       stylespath = devpath + 'styles/';
 
 const reload = browserSync.reload;
@@ -68,7 +72,6 @@ gulp.task('lintstyles', () => {
     }))
 });
 
-
 // Собрать скрипты в один файл и отбаблить
 gulp.task('scripts', function() {
   return gulp.src(devpath + 'js/main.js')
@@ -80,16 +83,26 @@ gulp.task('scripts', function() {
     .pipe(browserSync.stream());
 });
 
+// Копирование изображений в папку src и сжатие их
+gulp.task('images', () => {
+  return gulp.src(devpath + imagespath + '**/*')
+  .pipe(newer(srcpath + imagespath))
+  .pipe(imagemin([
+    pngquant(),
+    ],{ verbose: true }))
+  .pipe(gulp.dest(srcpath + imagespath))
+})
+
 // Static Server + watching styles and views files
-gulp.task('serve', ['views', 'styles', 'scripts'], function() {
+gulp.task('serve', ['views', 'styles', 'scripts', 'images'], function() {
 
     browserSync.init({
         server: srcpath
     });
 
-    gulp.watch(stylespath + "**/*.*", ['styles']);
-    gulp.watch(viewspath + "**/*.pug", ['views']);
-    gulp.watch(devpath + "js/**/*.js", ['scripts']); //.on('change', reload);
+    gulp.watch(stylespath + '**/*.{scss, sass}', ['styles']);
+    gulp.watch(viewspath + '**/*.pug', ['views']);
+    gulp.watch(devpath + 'js/**/*.js', ['scripts']); //.on('change', reload);
 });
 
 // Задача по-умолчанию
@@ -148,10 +161,10 @@ gulp.task('build', ['styles-prod', 'html-prod', 'js-prod']);
 var log = function (error) {
   console.log([
     '',
-    "----------ERROR MESSAGE START----------",
-    ("[" + error.name + " in " + error.plugin + "]"),
+    '----------ERROR MESSAGE START----------',
+    ('[' + error.name + ' in ' + error.plugin + ']'),
     error.message,
-    "----------ERROR MESSAGE END----------",
+    '----------ERROR MESSAGE END----------',
     ''
   ].join('\n'));
   this.end();

@@ -10,6 +10,7 @@
 ```
 ## Notes
 
-Файлы js проходят через babel
-
 Для инклюда файлов можно использовать [gulp-include](https://github.com/wiledal/gulp-include)
+
+Для проверки SCSS используется Stylelint
+

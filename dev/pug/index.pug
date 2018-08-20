@@ -6,11 +6,11 @@ include mixins/_mixins.pug
 
 doctype html
 html(lang="ru")
-  include partials/head.pug
+  include sections/head.pug
   body.page
     +browserupgrade
-    include partials/header.pug
-    include partials/content.pug
-    include partials/footer.pug
+    include sections/header.pug
+    include sections/content.pug
+    include sections/footer.pug
     script(src="js/main.js")
-    include partials/counters.html
+    include sections/counters.html
