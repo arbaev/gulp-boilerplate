@@ -51,11 +51,7 @@ gulp.task('styles', ['lintstyles'], function () {
     .pipe(include()).on('error', log)
     .pipe(sourcemaps.init())
     .pipe(sass().on('error', log))
-    .pipe(autoprefixer({
-      // список поддерживаемых браузеров: https://github.com/browserslist/browserslist#queries
-      browsers: ['cover 99.5%'],
-      cascade: true
-    }))
+    .pipe(autoprefixer())
     .pipe(sourcemaps.write())
     .pipe(gulp.dest(srcpath + 'css'))
     .pipe(browserSync.stream());
@@ -75,10 +71,20 @@ gulp.task('lintstyles', () => {
 // Собрать скрипты в один файл и отбаблить
 gulp.task('scripts', function() {
   return gulp.src(devpath + 'js/main.js')
-    .pipe(include()).on('error', log)
+    .pipe(sourcemaps.init())
     .pipe(babel({
       presets: ['env']
     }))
+    .pipe(include({
+      extensions: "js",
+      hardFail: true,
+      includePaths: [
+        // пути, в которых будет искать файлы для инклюда
+        __dirname + '/node_modules',
+        __dirname + '/' + devpath + 'js'
+      ]
+    })).on('error', log)
+    .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(srcpath + 'js'))
     .pipe(browserSync.stream());
 });
