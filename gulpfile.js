@@ -1,24 +1,29 @@
 'use strict'
 
 const gulp         = require('gulp'),
-      include      = require('gulp-include'),     // include & require любых файлов
+      include      = require('gulp-include'),       // include & require любых файлов
       browserSync  = require('browser-sync').create(),
       sourcemaps   = require('gulp-sourcemaps'),
-      sass         = require('gulp-sass'),
-      autoprefixer = require('gulp-autoprefixer'),
-      stylelint    = require('gulp-stylelint'),
-      newer        = require('gulp-newer'),
-      imagemin     = require('gulp-imagemin'),
-      pngquant     = require('imagemin-pngquant'),
+      sass         = require('gulp-sass'),          // sass support
+      autoprefixer = require('gulp-autoprefixer'),  // css autoprefixer
+      stylelint    = require('gulp-stylelint'),     // styles linter
+      newer        = require('gulp-newer'),         // filtering new files
+      imagemin     = require('gulp-imagemin'),      // optimizing images (jpg)
+      pngquant     = require('imagemin-pngquant'),  // optimizing images (png)
+      postcss      = require('gulp-postcss'),
+      normalize    = require('postcss-normalize'),  // at-import normalize.css
+      precss       = require('precss'),             // precss syntax support
+      postcssenv   = require('postcss-preset-env'), // cssnext syntax support
+      perfectcss   = require('perfectionist'),      // prettify css files
+      rename       = require('gulp-rename'),        // rename files
       // uglify      = require('gulp-uglify'),
       // cssnano     = require('gulp-cssnano'),
-      // rename      = require('gulp-rename'),
       // prettify    = require('gulp-jsbeautifier'),
       // htmlmin     = require('gulp-htmlmin'),
       // del         = require('del'),
       pump         = require('pump'),
-      babel        = require('gulp-babel'),
-      pug          = require('gulp-pug');
+      babel        = require('gulp-babel'),         // js babel converter
+      pug          = require('gulp-pug');           // pug support
 
 const devpath = 'dev/',       // файлы разработки
       srcpath = 'src/',       // скомпилированные файлы
@@ -30,7 +35,7 @@ const devpath = 'dev/',       // файлы разработки
 const reload = browserSync.reload;
 
 // ====================================================
-// ============== Локальная разработка src ============
+// ============== Локальная разработка dev ============
 // ====================================================
 
 // Компилируем pug в html
@@ -44,9 +49,29 @@ gulp.task('views', function buildHTML() {
     .pipe(browserSync.stream());
 });
 
+// Компилируем PostCSS + плагины в CSS & auto-inject into browsers
+// обрабатывается только main.pcss, все файлы подстилей должны инклюдится в нём: //= include file.pcss
+gulp.task('styles', function () {
+
+  const processors = [ precss, normalize, postcssenv, perfectcss ];
+
+  return gulp.src(stylespath + 'main.postcss')
+    .pipe(sourcemaps.init())
+    .pipe(include()).on('error', log)   // а нужен ли этот функционал при наличии @import от модуля sass? для css вроде нет, а для js нужен
+    .pipe(sass().on('error', log))
+    .pipe(postcss(processors).on('error', log))
+    .pipe(rename(function (path) {
+      path.extname = ".css";
+    }))
+    .pipe(sourcemaps.write('.'))
+    .pipe(gulp.dest(srcpath + 'css'))
+    .pipe(browserSync.stream());
+});
+
+// DEPRECATED! using 'styles' for now
 // Компилируем SCSS в CSS, перед этим прогоняем scss через линтер
 // обрабатывается только main.scss, все файлы подстилей должны инклюдится в нём: //= include file.scss
-gulp.task('styles', ['lintstyles'], function () {
+gulp.task('sass', ['lintstyles'], function () {
   return gulp.src(stylespath + 'main.scss')
     .pipe(include()).on('error', log)
     .pipe(sourcemaps.init())

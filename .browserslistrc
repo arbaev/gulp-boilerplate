@@ -1,6 +1,5 @@
 # https://github.com/browserslist/browserslist#readme
-
->= 1%
+cover 99.5%
 last 1 major version
 not dead
 Chrome >= 45
